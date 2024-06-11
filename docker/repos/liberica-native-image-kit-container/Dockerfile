@@ -5,9 +5,9 @@
 ARG BASE_IMAGE="bellsoft/alpaquita-linux-base:stream-musl"
 FROM "$BASE_IMAGE"
 
-# Only 22 is supported
+# 22, 23 are supported
 ARG NIK_RELEASE="22"
-# 11, 17 are supported
+# 11, 17, 21 are supported
 ARG JAVA_RELEASE="17"
 
 ARG MAINTAINER=""
@@ -23,18 +23,16 @@ ENV JAVA_HOME="/usr/lib/jvm/liberica-nik-${NIK_RELEASE}-${JAVA_RELEASE}"
 RUN \
     set -e; command set -o pipefail; \
     case "$NIK_RELEASE" in \
-        22) ;; \
+        22|23) ;; \
         *) \
-            echo -n "Invalid NIK_RELEASE: '${NIK_RELEASE}'. "; \
-            echo "Only '22' is supported'."; \
+            echo -n "No NIK_RELEASE '${NIK_RELEASE}'. "; \
             exit 1; \
             ;; \
     esac; \
-    case "$JAVA_RELEASE" in \
-        11|17) ;; \
+    case "${NIK_RELEASE}_${JAVA_RELEASE}" in \
+        22_11|22_17|23_17|23_21) ;; \
         *) \
-            echo -n "Invalid JAVA_RELEASE: '${JAVA_RELEASE}'. "; \
-            echo "Only '11' and '17' are supported."; \
+            echo -n "No JAVA_RELEASE '${JAVA_RELEASE}' for NIK_RELEASE '${NIK_RELEASE}'. "; \
             exit 1; \
             ;; \
     esac; \
