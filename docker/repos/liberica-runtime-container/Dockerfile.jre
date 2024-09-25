@@ -5,7 +5,7 @@
 ARG BASE_IMAGE="bellsoft/alpaquita-linux-base:stream-musl"
 FROM "$BASE_IMAGE"
 
-# 11, 17 and 21 are supported
+# 11, 17, 21, 22 and 23 are supported
 ARG JAVA_RELEASE="11"
 # Whether to install Class Data Sharing archives
 ARG CDS="no"
@@ -25,10 +25,10 @@ ENV JAVA_HOME="/usr/lib/jvm/liberica${JAVA_RELEASE}-container-jre"
 RUN \
     set -e; command set -o pipefail; \
     case "$JAVA_RELEASE" in \
-        11|17|21) ;; \
+        11|17|21|22|23) ;; \
         *) \
             echo -n "Invalid JAVA_RELEASE: '${JAVA_RELEASE}'. "; \
-            echo "Only '11', '17' and '21' are supported."; \
+            echo "Only '11', '17', '21', '22' and '23' are supported."; \
             exit 1; \
             ;; \
     esac; \
