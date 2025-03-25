@@ -1,0 +1,38 @@
+#syntax=docker/dockerfile:1.4
+
+ARG BASE_IMAGE
+
+FROM "$BASE_IMAGE" AS vmlinux
+
+RUN <<-'EOF'
+	set -e
+	apk update
+	apk add grep coreutils gzip xz binutils
+	apk fetch linux-lts
+
+	mkdir -p apk && tar -C apk -xzf linux-lts-*.apk
+
+	path="$(ls apk/boot/vmlinu*-*)"
+	name="${path##*/}"
+
+	case "$(arch)" in
+	x86_64)
+		# Download the script to convert vmlinuz to vmlinux
+		wget -O extract-vmlinux \
+			https://web.git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/plain/scripts/extract-vmlinux?h=linux-6.12.y
+		chmod +x extract-vmlinux
+		./extract-vmlinux $path > ${name/vmlinuz/vmlinux}
+		;;
+	aarch64)
+		# Alpaquita aarch64 kernel image is not compressed, so just move it:
+		mv $path ${name/vmlinuz/vmlinux}
+		;;
+	*)
+		echo "Failed to get the image: $name"
+		exit 1
+		;;
+	esac
+EOF
+
+FROM scratch
+COPY --from=vmlinux /vmlinux-* /

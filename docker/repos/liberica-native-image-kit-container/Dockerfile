@@ -6,9 +6,12 @@ ARG BASE_IMAGE="bellsoft/alpaquita-linux-base:stream-musl"
 FROM "$BASE_IMAGE"
 
 # 22, 23, 24 are supported
-ARG NIK_RELEASE="22"
-# 11, 17, 21, 22 are supported
-ARG JAVA_RELEASE="22"
+ARG NIK_RELEASE="24"
+# 11, 17, 21, 22, 23, 24 are supported
+ARG JAVA_RELEASE="24"
+
+# Debug image includes additional components for debugging
+ARG IS_DEBUG_IMAGE="no"
 
 ARG MAINTAINER=""
 ARG DESCRIPTION=""
@@ -30,10 +33,13 @@ RUN \
             ;; \
     esac; \
     case "${NIK_RELEASE}_${JAVA_RELEASE}" in \
-        22_11|22_17|23_17|23_21|24_22) ;; \
+        22_11|22_17|23_17|23_21|24_22|24_23|24_24) ;; \
         *) \
             echo -n "No JAVA_RELEASE '${JAVA_RELEASE}' for NIK_RELEASE '${NIK_RELEASE}'. "; \
             exit 1; \
             ;; \
     esac; \
-    apk add --no-cache "liberica-nik-${NIK_RELEASE}-${JAVA_RELEASE}"
+    apk add --no-cache "liberica-nik-${NIK_RELEASE}-${JAVA_RELEASE}"; \
+    if [ "$IS_DEBUG_IMAGE" = "yes" ]; then \
+        apk add --no-cache maven gdb; \
+    fi

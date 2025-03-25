@@ -1,0 +1,81 @@
+#syntax=docker/dockerfile:1.4
+
+ARG BASE_IMAGE
+FROM "$BASE_IMAGE"
+
+# Network and ssh setup
+COPY <<-'EOF' /usr/local/bin/fcnet_start.sh
+	#!/bin/sh
+	devs="$(ls /sys/class/net | grep -v lo)"
+	for dev in $devs; do
+	    mac="$(echo -n 0x; busybox cut -O -d: -f3- /sys/class/net/$dev/address)"
+	    ip=$(printf "%d.%d.%d.%d" $mac)
+	    def_route=$(printf "%d.%d.%d.1" ${mac% *})
+	    ip addr add "$ip/30" dev $dev
+	    ip link set $dev up
+	    ip route add default via $def_route dev $dev || true
+	done
+EOF
+COPY <<-'EOF' /etc/init.d/fcnet
+	#!/usr/sbin/openrc-run
+
+	description="Firecracker net service"
+	command="/usr/local/bin/fcnet_start.sh"
+	pidfile="/run/$RC_SVCNAME.pid"
+
+	depend() {
+	    provide net
+	}
+
+	start() {
+	    ebegin "Starting fcnet"
+	    $command
+	    eend $?
+	}
+
+	stop() {
+	    ebegin "Stopping fcnet"
+	    eend 0
+	}
+EOF
+
+# Serial console auto-login
+COPY <<-EOF /usr/local/bin/login_as_root.sh
+	#!/bin/sh
+	exec /usr/bin/login -f root
+EOF
+COPY <<-EOF /etc/inittab
+	::sysinit:/usr/sbin/openrc sysinit
+	::sysinit:/usr/sbin/openrc boot
+	::wait:/usr/sbin/openrc default
+	::respawn:/usr/sbin/getty -L -n -l /usr/local/bin/login_as_root.sh 115200 ttyS0 vt220
+EOF
+COPY <<-EOF /etc/hostname
+	microvm
+EOF
+
+RUN <<-EOF
+	# unlock root for ssh login
+	passwd -u root
+	chmod 0755 /usr/local/bin/*.sh /etc/init.d/fcnet
+
+	apk update
+	apk add openrc iproute2 openssh-server
+
+	# devfs: mount devpts for sshd
+	rc-update add devfs sysinit
+
+	rc-update add sysfs sysinit
+
+	rc-update add hostname boot
+	rc-update add swclock boot
+	rc-update add sysctl boot
+	rc-update add sysfsconf boot
+	rc-update add fcnet boot
+
+	rc-update add sshd default
+
+	rc-update add killprocs shutdown
+	rc-update add mount-ro shutdown
+	rc-update add savecache shutdown
+EOF
