@@ -48,7 +48,7 @@ COPY <<-EOF /etc/inittab
 	::sysinit:/usr/sbin/openrc sysinit
 	::sysinit:/usr/sbin/openrc boot
 	::wait:/usr/sbin/openrc default
-	::respawn:/usr/sbin/getty -L -n -l /usr/local/bin/login_as_root.sh 115200 ttyS0 vt220
+	console::respawn:/usr/sbin/getty -L -n -l /usr/local/bin/login_as_root.sh 115200 console vt220
 EOF
 COPY <<-EOF /etc/hostname
 	microvm
