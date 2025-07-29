@@ -12,6 +12,8 @@ ARG APK_REPOS=""
 # Space-separated list of locales to install in addition to those
 # which come in the minirootfs. For example, "fr_FR.UTF-8 zh_CN.utf8"
 ARG LOCALES=""
+# Whether to remove APK tools from the image
+ARG REMOVE_APK_TOOLS="no"
 
 ARG MAINTAINER=""
 ARG DESCRIPTION=""
@@ -38,6 +40,14 @@ RUN \
             exit 1; \
             ;; \
     esac; \
+    case "$REMOVE_APK_TOOLS" in \
+        yes|no) ;; \
+        *) \
+            echo "Invalid REMOVE_APK_TOOLS: '${REMOVE_APK_TOOLS}'. "; \
+            echo "Only 'yes' and 'no' are supported."; \
+            exit 1; \
+            ;; \
+    esac; \
     if [ -n "$APK_REPOS" ]; then \
         printf '%s\n' $APK_REPOS | tee /etc/apk/repositories; \
     fi; \
@@ -51,6 +61,9 @@ RUN \
        locale-gen --no-archive $LOCALES; \
        apk del --no-cache glibc-locales ; \
        rm -f /etc/locale.gen; \
+    fi; \
+    if [ "$REMOVE_APK_TOOLS" = "yes" ]; then \
+        apk del --no-cache apk-tools; \
     fi
 
 CMD ["/bin/sh"]

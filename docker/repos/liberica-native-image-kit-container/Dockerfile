@@ -9,9 +9,10 @@ FROM "$BASE_IMAGE"
 ARG NIK_RELEASE="24"
 # 11, 17, 21, 22, 23, 24 are supported
 ARG JAVA_RELEASE="24"
-
 # Debug image includes additional components for debugging
 ARG IS_DEBUG_IMAGE="no"
+# Whether to remove APK tools from the image
+ARG REMOVE_APK_TOOLS="no"
 
 ARG MAINTAINER=""
 ARG DESCRIPTION=""
@@ -39,7 +40,18 @@ RUN \
             exit 1; \
             ;; \
     esac; \
+    case "$REMOVE_APK_TOOLS" in \
+        yes|no) ;; \
+        *) \
+            echo "Invalid REMOVE_APK_TOOLS: '${REMOVE_APK_TOOLS}'. "; \
+            echo "Only 'yes' and 'no' are supported."; \
+            exit 1; \
+            ;; \
+    esac; \
     apk add --no-cache "liberica-nik-${NIK_RELEASE}-${JAVA_RELEASE}"; \
     if [ "$IS_DEBUG_IMAGE" = "yes" ]; then \
         apk add --no-cache maven gdb; \
+    fi; \
+    if [ "$REMOVE_APK_TOOLS" = "yes" ]; then \
+        apk del --no-cache apk-tools; \
     fi

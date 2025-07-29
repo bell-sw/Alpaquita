@@ -23,7 +23,6 @@ ARG PKGS="\
     gawk\
     gcc\
     gdb\
-    git\
     grep\
     hexdump\
     jpeg-dev\
@@ -43,7 +42,6 @@ ARG PKGS="\
     pkgconf\
     readline-dev\
     sed\
-    subversion\
     unzip\
     xz\
     xz-dev\
