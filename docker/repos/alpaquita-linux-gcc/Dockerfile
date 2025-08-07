@@ -34,7 +34,6 @@ ARG PKGS="\
     libpng-dev\
     libtool\
     libxml2-dev\
-    libxslt-dev\
     make\
     ncurses-dev\
     openssl-dev\
