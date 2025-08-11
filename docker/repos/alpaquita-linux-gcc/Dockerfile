@@ -26,7 +26,6 @@ ARG PKGS="\
     grep\
     hexdump\
     jpeg-dev\
-    krb5-dev\
     libc-dev\
     libevent-dev\
     libffi-dev\
