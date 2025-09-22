@@ -5,7 +5,7 @@
 ARG BASE_IMAGE="bellsoft/alpaquita-linux-base:stream-musl"
 FROM "$BASE_IMAGE"
 
-# 11, 17, 21, 22, 23 and 24 are supported
+# 11, 17, 21, 22, 23, 24, 25 are supported
 ARG JAVA_RELEASE="11"
 # jdk, jdk-all
 ARG BUNDLE_TYPE="jdk"
@@ -27,10 +27,10 @@ ENV JAVA_HOME="/usr/lib/jvm/liberica${JAVA_RELEASE}-lite"
 RUN \
     set -e; command set -o pipefail; \
     case "$JAVA_RELEASE" in \
-        11|17|21|22|23|24) ;; \
+        11|17|21|22|23|24|25) ;; \
         *) \
             echo -n "Invalid JAVA_RELEASE: '${JAVA_RELEASE}'. "; \
-            echo "Only '11', '17', '21', '22', '23' and '24' are supported."; \
+            echo "Only '11', '17', '21', '22', '23', '24', '25' are supported."; \
             exit 1; \
             ;; \
     esac; \

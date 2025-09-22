@@ -13,8 +13,6 @@ ARG PKGS="\
     binutils\
     bzip2\
     bzip2-dev\
-    curl\
-    curl-dev\
     diffutils\
     file\
     findutils\
